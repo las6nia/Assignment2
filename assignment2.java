@@ -1,169 +1,178 @@
 package assignment2;
+
 import java.util.Scanner;
 
 public class Main {
-    static Scanner input = new Scanner(System.in);
+	static Scanner input = new Scanner(System.in);
 
-    public static void main(String[] args) { //start of main method
-        char customerType;
-        double fee, fee1;
+	public static void main(String[] args) { // start of main method
+		char customerType;
+		double fee;
 
-        displayMenu();
-        customerType = input.next().toLowerCase().charAt(0);
+		displayMenu();
+		customerType = input.next().toLowerCase().charAt(0);
+//Start of the while loop
+		while (customerType != 'r' && customerType != 'b') {
+			System.out.println("Enter a valid option");
+			displayMenu();
+			customerType = input.next().toLowerCase().charAt(0);
+		}
 
-        // Validate input FIRST
-        while (customerType != 'r' && customerType != 'b') {
-            System.out.println("Enter a valid option");
-            displayMenu();
-            customerType = input.next().toLowerCase().charAt(0);
-        }
+		// residential
+		if (customerType == 'r') {
+			fee = residentialBill();
+		}
+		// business
+		else {
+			fee = businessBill();
+		}
 
-        // --- FIX: Run billing AFTER validation ---
-        if (customerType =='r') {
-            System.out.print("residential: ");
-            System.out.print(residentialBill()); // check bill if anything goes wrong
-        }
-        else {
-            System.out.print("Business");
-            fee1 = businessBill();
-            System.out.print(fee1); //check what's wrong
-        }
+		menuDisplay(fee); 
 
-    }//end of first method
-
+		System.out.println("Goodbye."); //
+	}// end of main
 
 // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-LUIS' CODE-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 
-    public static void displayMenu() { //main display
-        System.out.print("Enter customer type: R, r (Residential) or B, b (Business): \n");
 
-    }
+	public static void displayMenu() { // main display 
+		System.out.print("Enter customer type: R, r (Residential) or B, b (Business): \n");
+	}
 
-    public static void menuDisplay() { //options
-        char userChoice;
-        System.out.println("I - Enroll in our installment plan");
-        System.out.println("V - View change in consumption: Compare your current bill with your\nprevious one"); //Enter John's code inside if choice  == V!!!!!
-        System.out.println("E - Exit");
-        userChoice = input.next().toLowerCase().charAt(0);
+	public static void menuDisplay(double billAmount) { // options
+		char userChoice;
 
-        while (userChoice != 'e') {
-            if (userChoice =='i') {
-//	            installmentCalculator(); //Mark's code - look & fix in my method
+		System.out.println("Please select an option: ");
+		System.out.println("I - Enroll in our installment plan");
+		System.out.println("V - View change in consumption: Compare your current bill with your\nprevious one");
+		System.out.println("E - Exit");
+		userChoice = input.next().toLowerCase().charAt(0);
 
-            }
-            else { // lra - do else if (userChoice =='v') instead if any issues but shouldn't due to while loop
-                System.out.print("please enter the current amount due:");
-                int NewAmount = input.nextInt();
+		while (userChoice != 'e') {
 
-                ChangeInConsumption(NewAmount);
+			if (userChoice == 'i') {
+				// Installment Options 
+				char paymentPlanSelection;
+				System.out.println("***************************");
+				System.out.println(
+						"If you do not want to make a onetime payment, we have an easy\ninstallment plan for you. This is an interest charge plan.");
+				System.out.print("Sign up for the Installment Payment Plan (y/n)? \n");
+				paymentPlanSelection = input.next().toLowerCase().charAt(0);
 
-                input.close();
-            }
-        }
-    }
+				if (paymentPlanSelection == 'y') {
+					installmentCalculator(billAmount);
+				}
+			}
+
+			else if (userChoice == 'v') {
+				// -- Change in consumption --
+				System.out.print("Enter the amount due of your previous bill: \n");
+				double lastAmount = input.nextDouble();
+				ChangeInConsumption(billAmount, lastAmount);
+			}
+
+			// Ask again
+			System.out.println("Please select an option: ");
+			System.out.println("I - Enroll in our installment plan");
+			System.out.println("V - View change in consumption: Compare your current bill with your\nprevious one");
+			System.out.println("E - Exit");
+			userChoice = input.next().toLowerCase().charAt(0);
+		}
+	}
+
 // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-MARK'S CODE-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 
-     public static void installmentCalculator(double billAmount) {
+	public static void installmentCalculator(double billAmount) { //start of installmentCalculator - Mark's code
+		System.out.print("Enter the number of the required Installment (2, 3, or 4):\n");
+		int numInstallments = input.nextInt();
 
-            System.out.print("Enter the number of the required Installment (2, 3, or 4):\n");
-            int numInstallments = input.nextInt();
+		double interestRate = 0.0;
 
-            double interestRate = 0.0;
+		if (numInstallments == 2) {
+			interestRate = 0.0535;
+		} else if (numInstallments == 3) {
+			interestRate = 0.055;
+		} else if (numInstallments == 4) {
+			interestRate = 0.0575;
+		}
 
-            if (numInstallments == 2) {
-                interestRate = 0.0535;
-            } else if (numInstallments == 3) {
-                interestRate = 0.055;
-            } else if (numInstallments == 4) {
-                interestRate = 0.0575;
-            }
+		double totalWithInterest = billAmount * (1.0 + interestRate);
+		double eachInstallment = totalWithInterest / numInstallments;
 
-            double totalWithInterest = billAmount * (1.0 + interestRate);
-            double eachInstallment = totalWithInterest / numInstallments;
+		System.out.printf("With %d installment your bill of $%.2f will be worth $%.2f.\n", numInstallments, billAmount, totalWithInterest);
+		System.out.printf("Each installment will be worth $%.2f\n\n", eachInstallment);
+	} //end of installmentCalculator
 
-
-            System.out.printf("With %d installment your bill of $%.2f will be worth $%.2f\n",numInstallments, billAmount, totalWithInterest);
-            System.out.printf("Each installment will be worth $%.2f\n", eachInstallment);
-        }
 
 // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-LIN'S CODE-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 
-    public static double residentialBill(){ //start of residential - Lin's code
-        double kwh;
-        double fee;
+	public static double residentialBill() { //start of residential - Lin's code
+		double kwh;
+		double fee;
 
-        System.out.print("Welcome Residential Customer,\n Enter the total usage KiloWatt Hours (KWH): \n");
-        kwh = input.nextDouble();
+		System.out.print("\nWelcome Residential Customer,\nEnter the total usage KiloWatt Hours (KWH): \n");
+		kwh = input.nextDouble();
 
-        fee = kwh * 0.12 + 8.07;
-        fee = fee + fee * 0.05;
-        System.out.printf("Amount due: $%.2f\n", fee);
-        System.out.printf("30 Billing Days\n");
-        System.out.printf("Average Cost Per Day = $%.2f", fee/30);
+		fee = kwh * 0.12 + 8.07;
+		fee = fee + fee * 0.05;
 
-        return fee;
-    } //end of residential
+		System.out.printf("\nAmount due: $%.2f\n", fee);
+		System.out.printf("30 Billing Days\n");
+		System.out.printf("Average Cost Per Day = $%.2f\n\n", (fee / 30));
 
-    public static double businessBill() {// Business Bill - Lin - start of business
-        double KWH;
-        double fee;
-        int premiumChannels;
+		return fee;
+	}//end of residential
 
-        System.out.print("Welcome Business Customer,\nEnter the total usage KiloWatt Hours (KWH): \n");
-        KWH = input.nextDouble();
-        System.out.print("Enter the number of premium channels used: \n");
-        premiumChannels = input.nextInt();
+	public static double businessBill() { // Business Bill - Lin - start of business
+		double KWH;
+		double fee;
+		int premiumChannels;
 
-        if (KWH <= 1200)
-        {
-            fee = KWH * 0.17 + 47 * premiumChannels + 17.07;
-        }
+		System.out.print("\nWelcome Business Customer,\nEnter the total usage KiloWatt Hours (KWH): \n");
+		KWH = input.nextDouble();
+		System.out.print("Enter the number of premium channels used: \n");
+		premiumChannels = input.nextInt();
 
-        else
-        {
-            fee = 204 + (KWH-1200) * 0.12 + 47 * premiumChannels + 17.07;
-        }
-        fee = fee + fee * 0.08;
-        System.out.printf("Amount due: $%.2f\n", fee);
-        System.out.printf("30 Billing Days\n");
-        System.out.printf("Average Cost Per Day = $%.2f", fee/30);
+		if (KWH <= 1200) {
+			fee = KWH * 0.17 + 47 * premiumChannels + 17.07;
+		} else {
+			fee = 204 + (KWH - 1200) * 0.12 + 47 * premiumChannels + 17.07;
+		}
 
-        return fee;
-    } //end of business bill
+		fee = fee + fee * 0.08;
 
+		System.out.printf("\nAmount due: $%.2f\n", fee);
+		System.out.printf("30 Billing Days\n");
+		System.out.printf("Average Cost Per Day = $%.2f\n\n", fee / 30);
+
+		return fee;
+	}//end of business bill
 
 // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
-	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-JOHN'S CODE-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	-
-	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
+// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-JOHN'S CODE-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	-
+// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-	-	-	-	-	-	-	--	-	-	-	-	-	-	-
 
-    public static void ChangeInConsumption(int NewAmount) {
+	public static void ChangeInConsumption(double newAmount, double lastAmount) { //calculation - john's code
 
-        double change;
-        System.out.print("Please enter your amount due one month ago:");
-        int LastAmount = input.nextInt();
+		double change;
+		if (lastAmount > newAmount) {
+			change = (lastAmount - newAmount) / lastAmount;
+			System.out.printf(
+					"The change in consumption is decreasing by %.2f%%, when\ncomparing with previous due\n\n",
+					change * 100);
+		} else if (lastAmount < newAmount) {
+			change = (newAmount - lastAmount) / lastAmount;
+			System.out.printf("The change in consumption is increasing by %.2f%%, when comparing with previous due\n\n",
+					change * 100);
+		} else {
+			System.out.println("There is no change in the consumption\n");
+		}
+	}
 
-        if(LastAmount > NewAmount)
-        {
-            change =(double) (LastAmount - NewAmount) / LastAmount;
-            System.out.println("It’s a decreasing change");
-        }
-        else if(LastAmount < NewAmount)
-        {
-            change =(double) (NewAmount - LastAmount) / LastAmount;
-            System.out.println("It’s an increasing change");
-        }
-        else
-        {
-            change = 0;
-            System.out.println("There is no change in the consumption");
-        }
-        System.out.printf("the change in consumption is %.2f%%", change*100);
-    }
-
-} //end of Main Main
+} // end of Main
