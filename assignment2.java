@@ -55,7 +55,7 @@ public class Main {
 			if (userChoice == 'i') {
 				// Installment Options 
 				char paymentPlanSelection;
-				System.out.println("***************************");
+				System.out.println(".......................................");
 				System.out.println(
 						"If you do not want to make a onetime payment, we have an easy\ninstallment plan for you. This is an interest charge plan.");
 				System.out.print("Sign up for the Installment Payment Plan (y/n)? \n");
